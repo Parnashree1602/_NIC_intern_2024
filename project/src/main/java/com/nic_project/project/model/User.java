@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,7 +20,8 @@ import java.util.List;
 @Builder
 @Document(collection = "client")
 public class User implements UserDetails {
-    private String clientId;
+    @Id
+    private String client_id;
     private String client_secret;
     private Date created_on;
     private Date expiry_on;
@@ -27,7 +29,7 @@ public class User implements UserDetails {
     private Role role;
 
     public String getUsername() {
-        return clientId;
+        return client_id;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class User implements UserDetails {
     }
 
     public void setUsername(String username) {
-        this.clientId = username;
+        this.client_id = username;
     }
 
     @Override
@@ -69,4 +71,5 @@ public class User implements UserDetails {
     }
 
 }
+
 

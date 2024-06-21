@@ -11,8 +11,10 @@ import com.nic_project.project.repository.ReviewRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.util.Matrix;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +73,7 @@ public class DocumentService {
     }
 
     public Review saveOrUpdateReview(Review review) {
-        Optional<Review> existingReview = reviewRepository.findByApplicationTransactionId(review.getApplicationTransactionId());
+        Optional<Review> existingReview = reviewRepository.findByApplicationTransactionId(review.getApplication_transaction_id());
 
         if (existingReview.isPresent()) {
             Review existing = existingReview.get();
@@ -85,8 +87,8 @@ public class DocumentService {
 
     public ArchiveDocument archiveDocument(ArchiveDocument archiveDocument) {
 
-        Optional<ArchiveDocument> existingArchive = archiveRepository.findByApplicationTransactionId(archiveDocument.getApplicationTransactionId());
-        Optional<ClientDocument> archivedDocument = documentRepository.findByApplicationTransactionId(archiveDocument.getApplicationTransactionId());
+        Optional<ArchiveDocument> existingArchive = archiveRepository.findByApplicationTransactionId(archiveDocument.getApplication_transaction_id());
+        Optional<ClientDocument> archivedDocument = documentRepository.findByApplicationTransactionId(archiveDocument.getApplication_transaction_id());
 
         if (existingArchive.isPresent()) {
             ArchiveDocument archivedoc = existingArchive.get();
@@ -123,12 +125,24 @@ public class DocumentService {
 
         //loop to add watermark to each page
         for(PDPage page : document.getPages()){
-            PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true);
-            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 50);
+            PDRectangle pageSize = page.getMediaBox();
+            float pageWidth = pageSize.getWidth();
+            float pageHeight = pageSize.getHeight();
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.PREPEND, true, true);
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 70);
             contentStream.setNonStrokingColor(200, 200, 200);    //Light Grey colour
+
+
+            float stringWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(watermark) / 1000 * 50;
+            float stringHeight = PDType1Font.HELVETICA_BOLD.getFontDescriptor().getCapHeight() / 1000 * 50;
+
+            //calculating middle coordinates
+            float centerX = (pageWidth - stringWidth) / 2;
+            float centerY = (pageHeight - stringHeight) / 3;
+
             contentStream.beginText();
-            contentStream.setTextMatrix(Matrix.getRotateInstance(Math.toRadians(45), 500, 400));  // adjust the position and angle as required
-            contentStream.newLineAtOffset(100,300);
+            contentStream.setTextMatrix(Matrix.getRotateInstance(Math.toRadians(45), centerX, centerY));  // adjust the position and angle as required
             contentStream.showText(watermark);
             contentStream.endText();
             contentStream.close();
@@ -151,21 +165,23 @@ public class DocumentService {
 
 
 
-    public Optional<Review> getReviewByApplicationTransactionId(long applicationTransactionId) {
+
+
+    public Optional<Review> viewReviewLog(long applicationTransactionId) {
         return reviewRepository.findByApplicationTransactionId(applicationTransactionId);
     }
 
 
 
-    public Optional<ArchiveDocument> getArchiveDocumentByApplicationTransactionId(long applicationTransactionId) {
+    public Optional<ArchiveDocument> viewEditLog(long applicationTransactionId) {
         return archiveRepository.findByApplicationTransactionId(applicationTransactionId);
     }
 
 
     public String addPasswordToPdf(PdfPasswordRequest request) throws IOException {
-        Optional<ClientDocument> existingDocument = documentRepository.findByApplicationTransactionId(request.getApplicationTransactionId());
+        Optional<ClientDocument> existingDocument = documentRepository.findByApplicationTransactionId(request.getApplication_transaction_id());
 
-        if (!existingDocument.isPresent()) {
+        if (existingDocument.isEmpty()) {
             throw new IOException("Document not found");
         }
 

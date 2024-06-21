@@ -1,6 +1,5 @@
 package com.nic_project.project.config;
 
-
 import com.nic_project.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -42,4 +41,5 @@ public class ApplicationConfig {
         return new BCryptPasswordEncoder();
     }
 }
+
 

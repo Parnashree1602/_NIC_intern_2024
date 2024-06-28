@@ -1,5 +1,7 @@
 package com.nic_project.project.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -25,7 +27,9 @@ public class Client implements UserDetails {
     @Id
     private String client_id;
     private String client_secret;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date created_on;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date expiry_on;
 
     @Field("mobile_no")
@@ -40,6 +44,7 @@ public class Client implements UserDetails {
 
     private Role role;
 
+    @JsonIgnore
     public String getUsername() {
         return client_id;
     }
@@ -73,6 +78,7 @@ public class Client implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    @JsonIgnore
     public String getPassword() {
         return client_secret;
 

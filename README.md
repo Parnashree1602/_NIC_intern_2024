@@ -1,5 +1,5 @@
 
-# Document Management API
+# Document Management Framework
 
 This project is a part of my summer internship at the National Informatics Centre (NIC), where I am developing a sophisticated document management framework. This project aims to create a comprehensive document management system that streamlines the process of storing, organizing, and accessing documents within an organization. The framework provides robust functionalities to manage documents efficiently, ensuring security and ease of access.
 
